@@ -13,6 +13,7 @@ public class FloatingActionSheetController: UIViewController {
     // MARK: Public
     
     public var itemTintColor = UIColor(red:0.13, green:0.13, blue:0.17, alpha:1)
+    public var itemHighlightedColor = UIColor(red:0.09, green:0.1, blue:0.13, alpha:1)
     public var font = UIFont.boldSystemFontOfSize(14)
     public var textColor = UIColor.whiteColor()
     public var dimmingColor = UIColor(white: 0, alpha: 0.7)
@@ -62,8 +63,16 @@ public class FloatingActionSheetController: UIViewController {
     
     private class ActionButton: UIButton {
         
+        var defaultBackgroudColor = UIColor(red:0.13, green:0.13, blue:0.17, alpha:1)
+        var highlightedBackgroundColor = UIColor(red:0.09, green:0.1, blue:0.13, alpha:1)
         private(set) var action: FloatingAction?
         private var handler: ((action: FloatingAction) -> Void)?
+        
+        override var highlighted: Bool {
+            didSet {
+                backgroundColor = highlighted ? highlightedBackgroundColor : defaultBackgroudColor
+            }
+        }
         
         func configure(action: FloatingAction) {
             self.action = action
@@ -82,9 +91,10 @@ public class FloatingActionSheetController: UIViewController {
         
         let itemHeight: CGFloat = 50
         let itemSpacing: CGFloat = 8
-        let groupSpacing: CGFloat = 15
-        var addedButtons = [ActionButton]()
-        actionGroups.reverse().forEach {
+        let groupSpacing: CGFloat = 25
+        var previousGroupLastButton: ActionButton?
+        actionGroups.reverse().forEach {            
+            var previousButton: ActionButton?
             $0.actions.reverse().forEach {
                 let button = createSheetButton($0)
                 view.addSubview(button)
@@ -94,13 +104,21 @@ public class FloatingActionSheetController: UIViewController {
                     metrics: ["spacing": itemSpacing],
                     views: ["button": button]
                 )
-                if let previousButton = addedButtons.last {
+                if let previousButton = previousButton {
                     constraints +=
                     NSLayoutConstraint.constraintsWithVisualFormat(
                         "V:[button(height)]-spacing-[previous]",
                         options: [],
                         metrics: ["height": itemHeight,"spacing": itemSpacing],
                         views: ["button": button, "previous": previousButton]
+                    )
+                } else if let previousGroupLastButton = previousGroupLastButton {
+                    constraints +=
+                        NSLayoutConstraint.constraintsWithVisualFormat(
+                            "V:[button(height)]-spacing-[previous]",
+                            options: [],
+                            metrics: ["height": itemHeight, "spacing": groupSpacing],
+                            views: ["button": button, "previous": previousGroupLastButton]
                     )
                 } else {
                     constraints +=
@@ -112,18 +130,19 @@ public class FloatingActionSheetController: UIViewController {
                     )
                 }
                 view.addConstraints(constraints)
-                addedButtons.append(button)
+                previousButton = button
+                previousGroupLastButton = button
             }
         }
     }
     
     private func createSheetButton(action: FloatingAction) -> ActionButton {
-        let button = ActionButton(type: .System)
+        let button = ActionButton(type: .Custom)
         button.layer.cornerRadius = 4
         button.backgroundColor = itemTintColor
         button.titleLabel?.textAlignment = .Center
         button.titleLabel?.font = font
-        button.setTitleColor(textColor, forState: UIControlState.Normal)
+        button.setTitleColor(textColor, forState: .Normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configure(action)
         button.addTarget(self, action: "didSelectItem:", forControlEvents: .TouchUpInside)

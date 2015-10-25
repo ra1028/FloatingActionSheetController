@@ -45,8 +45,12 @@ class ViewController: UIViewController {
         let action2 = FloatingAction(title: "Action2") {
             print($0.title)
         }
-        let actionGroup1 = FloatingActionGroup(action: action1, action2)
-        let actionSheet = FloatingActionSheetController(actionGroup: actionGroup1)
+        let action3 = FloatingAction(title: "Action3") {
+            print($0.title)
+        }
+        let actionGroup1 = FloatingActionGroup(action: action1)
+        let actionGroup2 = FloatingActionGroup(action: action2, action3)
+        let actionSheet = FloatingActionSheetController(actionGroup: actionGroup1, actionGroup2)
         presentViewController(actionSheet, animated: true, completion: nil)
     }
 }
