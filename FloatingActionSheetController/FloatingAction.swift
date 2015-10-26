@@ -28,6 +28,4 @@ public struct FloatingAction {
     // MARK: Internal
     
     private(set) var handler: ((action: FloatingAction) -> Void)?
-    
-    // MARK: Private
 }

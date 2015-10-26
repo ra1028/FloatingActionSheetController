@@ -15,30 +15,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
     }
     
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
-        print("aaaaaaaa")
-    }
-    
-    override func viewWillDisappear(animated: Bool) {
-        super.viewWillDisappear(animated)
-        print("uuuuuu")
-    }
-    
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        super.touchesBegan(touches, withEvent: event)
-        
-//        let actionSheet = UIAlertController(title: "aaaa", message: "aaaaa", preferredStyle: .ActionSheet)
-//        (0...3).forEach {
-//            let action = UIAlertAction(title: "a\($0)", style: .Default, handler: nil)
-//            actionSheet.addAction(action)
-//        }
-//        let des = UIAlertAction(title: "des", style: UIAlertActionStyle.Destructive, handler: nil)
-//        actionSheet.addAction(des)
-//        let cancel1 = UIAlertAction(title: "c1", style: .Cancel, handler: nil)
-//        actionSheet.addAction(cancel1)
-//        presentViewController(actionSheet, animated: true, completion: nil)
-        
+    @IBAction private dynamic func handleShowButton(sender: UIButton) {
         let action1 = FloatingAction(title: "Action1") {
             print($0.title)
         }
@@ -50,8 +27,8 @@ class ViewController: UIViewController {
         }
         let actionGroup1 = FloatingActionGroup(action: action1)
         let actionGroup2 = FloatingActionGroup(action: action2, action3)
-        let actionSheet = FloatingActionSheetController(actionGroup: actionGroup1, actionGroup2)
-        presentViewController(actionSheet, animated: true, completion: nil)
+        FloatingActionSheetController(actionGroup: actionGroup1, actionGroup2)
+            .present(self)
     }
 }
 
