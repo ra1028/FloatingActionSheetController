@@ -13,7 +13,6 @@ public class FloatingActionSheetController: UIViewController {
     // MARK: Public
     
     public var itemTintColor = UIColor(red:0.13, green:0.13, blue:0.17, alpha:1)
-    public var itemHighlightedColor = UIColor(red:0.09, green:0.1, blue:0.13, alpha:1)
     public var font = UIFont.boldSystemFontOfSize(14)
     public var textColor = UIColor.whiteColor()
     public var dimmingColor = UIColor(white: 0, alpha: 0.7)
@@ -34,6 +33,14 @@ public class FloatingActionSheetController: UIViewController {
 
     public required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    public override func preferredStatusBarStyle() -> UIStatusBarStyle {
+        return .LightContent
+    }
+    
+    public override func prefersStatusBarHidden() -> Bool {
+        return UIApplication.sharedApplication().statusBarHidden
     }
     
     public override func viewWillAppear(animated: Bool) {
@@ -73,14 +80,20 @@ public class FloatingActionSheetController: UIViewController {
     
     private class ActionButton: UIButton {
         
-        var defaultBackgroudColor = UIColor(red:0.13, green:0.13, blue:0.17, alpha:1)
-        var highlightedBackgroundColor = UIColor(red:0.09, green:0.1, blue:0.13, alpha:1)
         private(set) var action: FloatingAction?
         private var handler: ((action: FloatingAction) -> Void)?
+        private var defaultBackgroundColor: UIColor?
         
         override var highlighted: Bool {
             didSet {
-                backgroundColor = highlighted ? highlightedBackgroundColor : defaultBackgroudColor
+                guard oldValue != highlighted else { return }
+                if highlighted {
+                    defaultBackgroundColor = backgroundColor
+                    backgroundColor = highlightedColor(defaultBackgroundColor)
+                } else {
+                    backgroundColor = defaultBackgroundColor
+                    defaultBackgroundColor = nil
+                }
             }
         }
         
@@ -88,7 +101,29 @@ public class FloatingActionSheetController: UIViewController {
             self.action = action
             handler = action.handler
             setTitle(action.title, forState: .Normal)
-            setAttributedTitle(action.attributedTitle, forState: .Normal)
+            _ = action.customTintColor.map {
+                backgroundColor = $0
+            }
+            _ = action.customTextColor.map {
+                setTitleColor($0, forState: .Normal)
+            }
+            _ = action.customFont.map {
+                titleLabel?.font = $0
+            }
+        }
+        
+        private func highlightedColor(originalColor: UIColor?) -> UIColor? {
+            guard let originalColor = originalColor else { return nil }
+            var hue: CGFloat = 0, saturatioin: CGFloat = 0,
+            brightness: CGFloat = 0, alpha: CGFloat = 0
+            if originalColor.getHue(
+                &hue,
+                saturation: &saturatioin,
+                brightness: &brightness,
+                alpha: &alpha) {
+                    return UIColor(hue: hue, saturation: saturatioin, brightness: brightness * 0.75, alpha: alpha)
+            }
+            return originalColor
         }
     }
     

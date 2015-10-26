@@ -13,15 +13,12 @@ public struct FloatingAction {
     // MARK: Public
     
     public private(set) var title: String?
-    public private(set) var attributedTitle: NSAttributedString?
+    public var customTintColor: UIColor?
+    public var customTextColor: UIColor?
+    public var customFont: UIFont?
     
     public init(title: String, handler: ((action :FloatingAction) -> Void)?) {
         self.title = title
-        self.handler = handler
-    }
-    
-    public init(attributedTitle: NSAttributedString, handler: ((action :FloatingAction) -> Void)?) {
-        self.attributedTitle = attributedTitle
         self.handler = handler
     }
     
