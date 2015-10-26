@@ -171,9 +171,7 @@ public class FloatingActionSheetController: UIViewController {
     }
     
     private func dismissActionSheet(completion: (() -> Void)? = nil) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(0.1 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
-            self.dismissViewControllerAnimated(true, completion: completion)
-        }
+        self.dismissViewControllerAnimated(true, completion: completion)
         if let topButtonY = actionButtons.last?.frame.origin.y {
             let bottomPad = view.bounds.height - topButtonY
             actionButtons.enumerate().forEach { index, button in
@@ -181,9 +179,7 @@ public class FloatingActionSheetController: UIViewController {
                     options: .BeginFromCurrentState,
                     animations: {
                         button.layer.transform = CATransform3DMakeTranslation(0, bottomPad, 1)
-                    }) { _ in
-                        
-                }
+                    }, completion: nil)
             }
         }
     }
@@ -287,7 +283,7 @@ private final class FloatingTransitionAnimator: NSObject, UIViewControllerAnimat
                     transitionContext.completeTransition(true)
             }
         } else {
-            UIView.animateWithDuration(duration, delay: 0,
+            UIView.animateWithDuration(duration, delay: 0.1,
                 usingSpringWithDamping: 1, initialSpringVelocity: 0,
                 options: .BeginFromCurrentState,
                 animations: {
