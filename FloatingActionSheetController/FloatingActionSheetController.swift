@@ -26,6 +26,11 @@ public class FloatingActionSheetController: UIViewController {
         actionGroup.forEach { addActionGroup($0) }
     }
     
+    public convenience init(actionGroups: [FloatingActionGroup]) {
+        self.init(nibName: nil, bundle: nil)
+        addActionGroups(actionGroups)
+    }
+    
     public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         configure()
@@ -65,6 +70,11 @@ public class FloatingActionSheetController: UIViewController {
         return self
     }
     
+    public func addActionGroups(actionGroups: [FloatingActionGroup]) -> Self {
+        self.actionGroups += actionGroups
+        return self
+    }
+    
     public func addAction(action: FloatingAction..., newGroup: Bool = false) -> Self {        
         if let lastGroup = actionGroups.last where !newGroup {
             action.forEach { lastGroup.addAction($0) }
@@ -76,12 +86,21 @@ public class FloatingActionSheetController: UIViewController {
         return self
     }
     
+    public func addActions(actions: [FloatingAction], newGroup: Bool = false) -> Self {
+        if let lastGroup = actionGroups.last where !newGroup {
+            lastGroup.addActions(actions)
+        } else {
+            let actionGroup = FloatingActionGroup(actions: actions)
+            addActionGroup(actionGroup)
+        }
+        return self
+    }
+    
     // MARK: Private
     
     private class ActionButton: UIButton {
         
         private(set) var action: FloatingAction?
-        private var handler: ((action: FloatingAction) -> Void)?
         private var defaultBackgroundColor: UIColor?
         
         override var highlighted: Bool {
@@ -99,16 +118,15 @@ public class FloatingActionSheetController: UIViewController {
         
         func configure(action: FloatingAction) {
             self.action = action
-            handler = action.handler
             setTitle(action.title, forState: .Normal)
-            _ = action.customTintColor.map {
-                backgroundColor = $0
+            if let color = action.customTintColor {
+                backgroundColor = color
             }
-            _ = action.customTextColor.map {
-                setTitleColor($0, forState: .Normal)
+            if let color = action.customTextColor {
+                setTitleColor(color, forState: .Normal)
             }
-            _ = action.customFont.map {
-                titleLabel?.font = $0
+            if let font = action.customFont {
+                titleLabel?.font = font
             }
         }
         
@@ -233,9 +251,13 @@ public class FloatingActionSheetController: UIViewController {
     }
     
     private dynamic func didSelectItem(button: ActionButton) {
+        guard let action = button.action else { return }
+        if !action.afterDismiss {
+            action.handler?(action: action)
+        }
         dismissActionSheet {
-            if let action = button.action {
-                button.handler?(action: action)
+            if action.afterDismiss {
+                action.handler?(action: action)
             }
         }
     }

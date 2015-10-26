@@ -17,7 +17,7 @@ public struct FloatingAction {
     public var customTextColor: UIColor?
     public var customFont: UIFont?
     
-    public init(title: String, handler: ((action :FloatingAction) -> Void)?) {
+    public init(title: String, afterDismiss: Bool = false, handler: ((action :FloatingAction) -> Void)?) {
         self.title = title
         self.handler = handler
     }
@@ -25,4 +25,5 @@ public struct FloatingAction {
     // MARK: Internal
     
     private(set) var handler: ((action: FloatingAction) -> Void)?
+    private(set) var afterDismiss = false
 }

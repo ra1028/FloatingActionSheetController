@@ -16,26 +16,18 @@ class ViewController: UIViewController {
     }
     
     @IBAction private dynamic func handleShowButton(sender: UIButton) {
-        let action1 = FloatingAction(title: "Action1") {
-            print($0.title)
+        let actions1 = (0...1).map {
+            FloatingAction(title: "Action\($0)") {
+                print($0.title)
+            }
         }
-        let action2 = FloatingAction(title: "Action2") {
-            print($0.title)
+        let actions2 = (2...5).map {
+            FloatingAction(title: "Action\($0)") {
+                print($0.title)
+            }
         }
-        let action3 = FloatingAction(title: "Action3") {
-            print($0.title)
-        }
-        let action4 = FloatingAction(title: "Action3") {
-            print($0.title)
-        }
-        let action5 = FloatingAction(title: "Action3") {
-            print($0.title)
-        }
-        let action6 = FloatingAction(title: "Action3") {
-            print($0.title)
-        }
-        let actionGroup1 = FloatingActionGroup(action: action1, action2)
-        let actionGroup2 = FloatingActionGroup(action: action3, action4, action5, action6)
+        let actionGroup1 = FloatingActionGroup(actions: actions1)
+        let actionGroup2 = FloatingActionGroup(actions: actions2)
         FloatingActionSheetController(actionGroup: actionGroup1, actionGroup2)
             .present(self)
     }
