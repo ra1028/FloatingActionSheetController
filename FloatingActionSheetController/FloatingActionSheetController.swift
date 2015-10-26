@@ -279,7 +279,8 @@ extension FloatingActionSheetController: UIViewControllerTransitioningDelegate {
     }
     
     public func animationControllerForDismissedController(dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return FloatingTransitionAnimator(dimmingView: dimmingView, forwardTransition: false)
+        let delay = NSTimeInterval(actionButtons.count) * 0.03
+        return FloatingTransitionAnimator(dimmingView: dimmingView, delay: delay, forwardTransition: false)
     }
 }
 
@@ -287,10 +288,12 @@ private final class FloatingTransitionAnimator: NSObject, UIViewControllerAnimat
     
     var forwardTransition = true
     let dimmingView: UIView
+    var delay: NSTimeInterval = 0
     
-    init(dimmingView: UIView, forwardTransition: Bool = true) {
+    init(dimmingView: UIView, delay: NSTimeInterval = 0, forwardTransition: Bool = true) {
         self.dimmingView = dimmingView
         super.init()
+        self.delay = delay
         self.forwardTransition = forwardTransition
     }
     
@@ -318,7 +321,7 @@ private final class FloatingTransitionAnimator: NSObject, UIViewControllerAnimat
                     transitionContext.completeTransition(true)
             }
         } else {
-            UIView.animateWithDuration(duration, delay: 0.1,
+            UIView.animateWithDuration(duration, delay: delay,
                 usingSpringWithDamping: 1, initialSpringVelocity: 0,
                 options: .BeginFromCurrentState,
                 animations: {
