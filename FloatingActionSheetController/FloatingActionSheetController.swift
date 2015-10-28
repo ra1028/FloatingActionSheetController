@@ -12,22 +12,33 @@ public class FloatingActionSheetController: UIViewController {
     
     // MARK: Public
     
+    public enum AnimationStyle {
+        case SlideUp
+        case SlideDown
+        case SlideLeft
+        case SlideRight
+        case Pop
+    }
+    
+    public var animationStyle = AnimationStyle.SlideUp
     public var itemTintColor = UIColor(red:0.13, green:0.13, blue:0.17, alpha:1)
     public var font = UIFont.boldSystemFontOfSize(14)
     public var textColor = UIColor.whiteColor()
     public var dimmingColor = UIColor(white: 0, alpha: 0.7)
     
-    public convenience init() {
+    public convenience init(animationStyle: AnimationStyle = .SlideUp) {
         self.init(nibName: nil, bundle: nil)
     }
     
-    public convenience init(actionGroup: FloatingActionGroup...) {
+    public convenience init(actionGroup: FloatingActionGroup..., animationStyle: AnimationStyle = .SlideUp) {
         self.init(nibName: nil, bundle: nil)
+        self.animationStyle = animationStyle
         actionGroup.forEach { addActionGroup($0) }
     }
     
-    public convenience init(actionGroups: [FloatingActionGroup]) {
+    public convenience init(actionGroups: [FloatingActionGroup], animationStyle: AnimationStyle = .SlideUp) {
         self.init(nibName: nil, bundle: nil)
+        self.animationStyle = animationStyle
         addActionGroups(actionGroups)
     }
     
@@ -218,15 +229,45 @@ public class FloatingActionSheetController: UIViewController {
         }
         view.layoutIfNeeded()
         
-        if let topButtonY = actionButtons.last?.frame.origin.y {
+        if let topButton = actionButtons.last {
+            let buttons: [ActionButton]
+            let preTransform: CATransform3D
+            let transform: CATransform3D
+            let topButtonY = topButton.frame.origin.y
             assert(topButtonY > 0, "[FloatingActionSheetController] Too many action items error.")
-            let bottomPad = view.bounds.height - topButtonY
-            actionButtons.reverse().enumerate().forEach { index, button in
-                button.layer.transform = CATransform3DMakeTranslation(0, bottomPad, 1)
+            switch animationStyle {
+            case .SlideUp:
+                let bottomPad = view.bounds.height - topButtonY
+                buttons = actionButtons.reverse()
+                preTransform = CATransform3DMakeTranslation(0, bottomPad, 0)
+                transform = CATransform3DMakeTranslation(0, -10, 0)
+            case .SlideDown:
+                let topPad = CGRectGetMaxY(actionButtons[0].frame)
+                buttons = actionButtons
+                preTransform = CATransform3DMakeTranslation(0, -topPad, 0)
+                transform = CATransform3DMakeTranslation(0, 10, 0)
+            case .SlideLeft:
+                let rightPad = view.bounds.width - topButton.frame.origin.x
+                buttons = actionButtons.reverse()
+                preTransform = CATransform3DMakeTranslation(rightPad, 0, 0)
+                transform = CATransform3DMakeTranslation(-10, 0, 0)
+            case .SlideRight:
+                let leftPad = CGRectGetMaxX(topButton.frame)
+                buttons = actionButtons.reverse()
+                preTransform = CATransform3DMakeTranslation(-leftPad, 0, 0)
+                transform = CATransform3DMakeTranslation(10, 0, 0)
+            case .Pop:
+                buttons = actionButtons.reverse()
+                preTransform = CATransform3DMakeScale(0, 0, 1)
+                transform = CATransform3DMakeScale(1.1, 1.1, 1)
+            }
+            
+            buttons.enumerate().forEach { index, button in
+                button.layer.transform = preTransform
                 UIView.animateWithDuration(0.25, delay: NSTimeInterval(index) * 0.05 + 0.05,
                     options: .BeginFromCurrentState,
                     animations: {
-                        button.layer.transform = CATransform3DMakeTranslation(0, -10, 1)
+                        button.layer.transform = transform
                     }) { _ in
                         UIView.animateWithDuration(0.2, delay: 0,
                             options: [.BeginFromCurrentState, .CurveEaseOut],
@@ -240,14 +281,41 @@ public class FloatingActionSheetController: UIViewController {
     
     private func dismissActionSheet(completion: (() -> Void)? = nil) {
         self.dismissViewControllerAnimated(true, completion: completion)
-        if let topButtonY = actionButtons.last?.frame.origin.y {
-            let bottomPad = view.bounds.height - topButtonY
-            actionButtons.enumerate().forEach { index, button in
+        if let topButton = actionButtons.last {
+            let buttons: [ActionButton]
+            let transform: CATransform3D
+            var completion: (ActionButton -> Void)?
+            switch animationStyle {
+            case .SlideUp:
+                let bottomPad = view.bounds.height - topButton.frame.origin.y
+                buttons = actionButtons
+                transform = CATransform3DMakeTranslation(0, bottomPad, 0)
+            case .SlideDown:
+                let topPad = CGRectGetMaxY(actionButtons[0].frame)
+                buttons = actionButtons.reverse()
+                transform = CATransform3DMakeTranslation(0, -topPad, 0)
+            case .SlideLeft:
+                let leftPad = CGRectGetMaxX(topButton.frame)
+                buttons = actionButtons.reverse()
+                transform = CATransform3DMakeTranslation(-leftPad, 0, 0)
+            case .SlideRight:
+                let rightPad = view.bounds.width - topButton.frame.origin.x
+                buttons = actionButtons.reverse()
+                transform = CATransform3DMakeTranslation(rightPad, 0, 0)
+            case .Pop:
+                buttons = actionButtons
+                transform = CATransform3DMakeScale(0.01, 0.01, 1) // 0.01 = Swift bug
+                completion = { $0.layer.transform = CATransform3DMakeScale(0, 0, 1) }
+            }
+            
+            buttons.enumerate().forEach { index, button in
                 UIView.animateWithDuration(0.2, delay: NSTimeInterval(index) * 0.05 + 0.05,
                     options: .BeginFromCurrentState,
                     animations: {
-                        button.layer.transform = CATransform3DMakeTranslation(0, bottomPad, 1)
-                    }, completion: nil)
+                        button.layer.transform = transform
+                    }) { _ in
+                        completion?(button)
+                }
             }
         }
     }

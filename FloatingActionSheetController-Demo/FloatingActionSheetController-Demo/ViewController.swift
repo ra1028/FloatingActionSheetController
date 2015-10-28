@@ -35,7 +35,7 @@ class ViewController: UIViewController {
         }
         let actionGroup1 = FloatingActionGroup(actions: actions1)
         let actionGroup2 = FloatingActionGroup(actions: actions2)
-        FloatingActionSheetController(actionGroup: actionGroup1, actionGroup2)
+        FloatingActionSheetController(actionGroup: actionGroup1, actionGroup2, animationStyle: .Pop)
             .present(self)
     }
 }
