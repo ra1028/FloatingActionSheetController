@@ -13,10 +13,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        // Override point for customization after application launch.
+        configure()
         return true
+    }
+    
+    private func configure() {
+        UIApplication.sharedApplication().setStatusBarStyle(.LightContent, animated: true)
+        
+        let nav = UINavigationController(rootViewController: ViewController())
+        let navBar = nav.navigationBar
+        navBar.setBackgroundImage(UIImage(), forBarMetrics: .Default)
+        navBar.shadowImage = UIImage()
+        navBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.whiteColor()]
+        navBar.subviews.forEach {
+            if $0.isKindOfClass(NSClassFromString("_UINavigationBarBackground")!) {
+                $0.backgroundColor = UIColor(red:0.09, green:0.11, blue:0.13, alpha:1)
+            }
+        }
+        let window = UIWindow(frame: UIScreen.mainScreen().bounds)
+        window.rootViewController = nav
+        window.makeKeyAndVisible()
+        self.window = window
     }
 
     func applicationWillResignActive(application: UIApplication) {

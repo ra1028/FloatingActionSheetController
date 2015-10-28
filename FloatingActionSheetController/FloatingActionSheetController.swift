@@ -48,10 +48,24 @@ public class FloatingActionSheetController: UIViewController {
         return UIApplication.sharedApplication().statusBarHidden
     }
     
+    public override func preferredStatusBarUpdateAnimation() -> UIStatusBarAnimation {
+        return .Fade
+    }
+    
     public override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         if !isShowing {
             showActionSheet()
+        }
+        if originalStatusBarStyle == nil {
+            originalStatusBarStyle = UIApplication.sharedApplication().statusBarStyle
+        }
+        UIApplication.sharedApplication().setStatusBarStyle(.LightContent, animated: true)
+    }
+    
+    public override func viewWillDisappear(animated: Bool) {
+        if let style = originalStatusBarStyle {
+            UIApplication.sharedApplication().setStatusBarStyle(style, animated: true)
         }
     }
     
@@ -148,7 +162,7 @@ public class FloatingActionSheetController: UIViewController {
     private var actionGroups = [FloatingActionGroup]()
     private var actionButtons = [ActionButton]()
     private var isShowing = false
-    
+    private var originalStatusBarStyle: UIStatusBarStyle?
     private weak var dimmingView: UIControl!
     
     private func showActionSheet() {
@@ -205,6 +219,7 @@ public class FloatingActionSheetController: UIViewController {
         view.layoutIfNeeded()
         
         if let topButtonY = actionButtons.last?.frame.origin.y {
+            assert(topButtonY > 0, "[FloatingActionSheetController] Too many action items error.")
             let bottomPad = view.bounds.height - topButtonY
             actionButtons.reverse().enumerate().forEach { index, button in
                 button.layer.transform = CATransform3DMakeTranslation(0, bottomPad, 1)

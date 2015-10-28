@@ -13,9 +13,16 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        configure()
     }
     
-    @IBAction private dynamic func handleShowButton(sender: UIButton) {
+    private func configure() {
+        title = "Examples"
+        view.backgroundColor = UIColor(red:0.14, green:0.16, blue:0.2, alpha:1)
+    }
+    
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        super.touchesBegan(touches, withEvent: event)
         let actions1 = (0...1).map {
             FloatingAction(title: "Action\($0)") {
                 print($0.title)
