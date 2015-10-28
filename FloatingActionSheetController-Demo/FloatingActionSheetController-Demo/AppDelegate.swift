@@ -19,8 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     private func configure() {
-        UIApplication.sharedApplication().setStatusBarStyle(.LightContent, animated: true)
-        
+        UIApplication.sharedApplication().statusBarStyle = .LightContent
         let nav = UINavigationController(rootViewController: ViewController())
         let navBar = nav.navigationBar
         navBar.setBackgroundImage(UIImage(), forBarMetrics: .Default)
