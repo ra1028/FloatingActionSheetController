@@ -26,8 +26,9 @@ public class FloatingActionSheetController: UIViewController {
     public var textColor = UIColor.whiteColor()
     public var dimmingColor = UIColor(white: 0, alpha: 0.7)
     
-    public convenience init(animationStyle: AnimationStyle = .SlideUp) {
+    public convenience init(animationStyle: AnimationStyle) {
         self.init(nibName: nil, bundle: nil)
+        self.animationStyle = animationStyle
     }
     
     public convenience init(actionGroup: FloatingActionGroup..., animationStyle: AnimationStyle = .SlideUp) {
@@ -40,6 +41,12 @@ public class FloatingActionSheetController: UIViewController {
         self.init(nibName: nil, bundle: nil)
         self.animationStyle = animationStyle
         addActionGroups(actionGroups)
+    }
+    
+    public convenience init(actions: [FloatingAction], animationStyle: AnimationStyle = .SlideUp) {
+        self.init(nibName: nil, bundle: nil)
+        self.animationStyle = animationStyle
+        addActions(actions)
     }
     
     public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {

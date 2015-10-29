@@ -82,6 +82,105 @@ class ViewController: UIViewController {
     }
     
     private func configureDataSources() {
+        var standardRows = [RowData]()
+        standardRows.append(
+            RowData(title: "2 : 1") { [weak self] in
+                if let sSelf = self {
+                    let group1 = FloatingActionGroup(actions:
+                        (1...2).map {
+                            FloatingAction(title: "Action\($0)") {
+                                sSelf.display($0)
+                            }
+                        }
+                    )
+                    let group2 = FloatingActionGroup(action:
+                        FloatingAction(title: "Action3") {
+                            sSelf.display($0)
+                        }
+                    )
+                    FloatingActionSheetController(actionGroup: group1, group2)
+                        .present(sSelf)
+                }
+            }
+        )
+        standardRows.append(
+            RowData(title: "1 : 4") { [weak self] in
+                if let sSelf = self {
+                    let group1 = FloatingActionGroup(action:
+                        FloatingAction(title: "Action1") {
+                            sSelf.display($0)
+                        }
+                    )
+                    let group2 = FloatingActionGroup(actions:
+                        (2...5).map {
+                            FloatingAction(title: "Action\($0)") {
+                                sSelf.display($0)
+                            }
+                        }
+                    )
+                    FloatingActionSheetController(actionGroup: group1, group2)
+                        .present(sSelf)
+                }
+            }
+        )
+        standardRows.append(
+            RowData(title: "1 : 3 : 1") { [weak self] in
+                if let sSelf = self {
+                    let group1 = FloatingActionGroup(action:
+                        FloatingAction(title: "Action1") {
+                            sSelf.display($0)
+                        }
+                    )
+                    let group2 = FloatingActionGroup(actions:
+                        (2...4).map {
+                            FloatingAction(title: "Action\($0)") {
+                                sSelf.display($0)
+                            }
+                        }
+                    )
+                    let group3 = FloatingActionGroup(action:
+                        FloatingAction(title: "Action5") {
+                            sSelf.display($0)
+                        }
+                    )
+                    FloatingActionSheetController(actionGroup: group1, group2, group3)
+                        .present(sSelf)
+                }
+            }
+        )
+        standardRows.append(
+            RowData(title: "2 : 2 : 2") { [weak self] in
+                if let sSelf = self {
+                    let group1 = FloatingActionGroup(actions:
+                        (1...2).map {
+                            FloatingAction(title: "Action\($0)") {
+                                sSelf.display($0)
+                            }
+                        }
+                    )
+                    let group2 = FloatingActionGroup(actions:
+                        (3...4).map {
+                            FloatingAction(title: "Action\($0)") {
+                                sSelf.display($0)
+                            }
+                        }
+                    )
+                    let group3 = FloatingActionGroup(actions:
+                        (5...6).map {
+                            FloatingAction(title: "Action\($0)") {
+                                sSelf.display($0)
+                            }
+                        }
+                    )
+                    FloatingActionSheetController(actionGroup: group1, group2, group3)
+                        .present(sSelf)
+                }
+            }
+        )
+        dataSources.append(
+            DataSource(sectionTitle: "Standard", rowDatas: standardRows)
+        )
+        
         let animationRows: [RowData] = [
             ("SlideUp", .SlideUp),
             ("SlideDown", .SlideDown),
@@ -99,7 +198,7 @@ class ViewController: UIViewController {
             DataSource(sectionTitle: "Animation", rowDatas: animationRows)
         )
         
-        let customTintRow = RowData(title: "Custom tint color") { [weak self] in
+        let customTintRow = RowData(title: "Tint color") { [weak self] in
             if let sSelf = self {
                 let actionSheet = FloatingActionSheetController(actionGroups: sSelf.exampleActionGroups())
                 actionSheet.itemTintColor = UIColor(red:0.93, green:0.95, blue:0.96, alpha:1)
@@ -107,14 +206,14 @@ class ViewController: UIViewController {
                 actionSheet.present(sSelf)
             }
         }
-        let customTextColorRow = RowData(title: "Custom text color") { [weak self] in
+        let customTextColorRow = RowData(title: "Text color") { [weak self] in
             if let sSelf = self {
                 let actionSheet = FloatingActionSheetController(actionGroups: sSelf.exampleActionGroups())
                 actionSheet.textColor = UIColor(red: 0.9, green: 0.55, blue: 0.08, alpha: 1)
                 actionSheet.present(sSelf)
             }
         }
-        let customFontRow = RowData(title: "Custom text font") { [weak self] in
+        let customFontRow = RowData(title: "Text font") { [weak self] in
             if let sSelf = self {
                 let actionSheet = FloatingActionSheetController(actionGroups: sSelf.exampleActionGroups())
                 actionSheet.font = .systemFontOfSize(18)
@@ -130,18 +229,18 @@ class ViewController: UIViewController {
         }
         let individualCustomRow = RowData(title: "Individual custom") { [weak self] in
             if let sSelf = self {
-                var actions = (1...2).map {
-                    FloatingAction(title: "Action\($0)") { [weak self] in
-                        self?.display($0)
+                let actions = (1...2).map {
+                    FloatingAction(title: "Action\($0)") {
+                        sSelf.display($0)
                     }
                 }
-                var cancelAction = FloatingAction(title: "cancel") { [weak self] in
-                    self?.display($0)
+                var cancelAction = FloatingAction(title: "Cancel") {
+                    sSelf.display($0)
                 }
                 cancelAction.customTintColor = UIColor(red:0.93, green:0.95, blue:0.96, alpha:1)
                 cancelAction.customTextColor = UIColor(red:0.87, green:0.42, blue:0.35, alpha:1)
-                actions.append(cancelAction)
                 FloatingActionSheetController(actionGroup: FloatingActionGroup(actions: actions))
+                    .addAction(cancelAction, newGroup: true)
                     .present(sSelf)
             }
         }
