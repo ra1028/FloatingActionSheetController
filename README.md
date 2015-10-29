@@ -6,9 +6,9 @@
 FloatingActionSheetController is a cool design ActionSheetController library written in Swift2.  
 
 ## Overview
-![Imgur](http://i.imgur.com/sFyY1nQ.gif)
-![Imgur](http://i.imgur.com/knW4ywv.gif)  
-![Imgur](http://i.imgur.com/bzKxfyx.png)  
+<img src="http://i.imgur.com/sFyY1nQ.gif" width="320">
+<img src="http://i.imgur.com/0InaZwn.gif" width="320">
+<img src="http://i.imgur.com/bzKxfyx.png" width="240">
 
 ## Requirements  
 - Xcode 7+
