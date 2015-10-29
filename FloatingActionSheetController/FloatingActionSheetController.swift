@@ -342,11 +342,11 @@ public class FloatingActionSheetController: UIViewController {
     
     private dynamic func didSelectItem(button: ActionButton) {
         guard let action = button.action else { return }
-        if !action.afterDismiss {
+        if action.handleImmediately {
             action.handler?(action: action)
         }
         dismissActionSheet {
-            if action.afterDismiss {
+            if !action.handleImmediately {
                 action.handler?(action: action)
             }
         }

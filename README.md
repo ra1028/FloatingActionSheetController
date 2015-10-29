@@ -39,9 +39,9 @@ let action1 = FloatingAction(title: "title") { action in
 let action2 = FloatingAction(title: "title") { action in
     // Do something.
 }
-let action3 = FloatingAction(title: "title", afterDismiss: true) { action in
+let action3 = FloatingAction(title: "title", handleImmediately: true) { action in
     // Do something.
-    // If set to 'true' the afterDismiss, handler will be executed after the action sheet was dismiss.
+    // If set to 'true' the handleImmediately, handler will be execute soon when Action was select.
 }
 let group1 = FloatingActionGroup(action: action1)
 let group2 = FloatingActionGroup(action: action2, action3)
@@ -83,7 +83,7 @@ actionSheet.font = .boldSystemFontOfSize(15)
 // background dimming color
 actionSheet.dimmingColor = UIColor(white: 1, alpha: 0.7)
 ```
-If you wants to customize FloationgAction individually.
+If you wants to customize FloatingAction individually.
 ```swift
 var action = FloatingAction(title: "title") { action in
     // Do something.

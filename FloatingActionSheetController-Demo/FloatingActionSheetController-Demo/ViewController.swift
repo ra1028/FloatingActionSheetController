@@ -234,7 +234,7 @@ class ViewController: UIViewController {
                         sSelf.display($0)
                     }
                 }
-                var cancelAction = FloatingAction(title: "Cancel") {
+                let cancelAction = FloatingAction(title: "Cancel") {
                     sSelf.display($0)
                 }
                 cancelAction.customTintColor = UIColor(red:0.93, green:0.95, blue:0.96, alpha:1)
