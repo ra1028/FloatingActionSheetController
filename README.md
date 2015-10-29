@@ -1,6 +1,8 @@
 # FloationgActionSheetController
 ![Platform](http://img.shields.io/badge/platform-iOS-blue.svg?style=flat)
 [![Language](https://img.shields.io/badge/swift2-compatible-4BC51D.svg?style=flat)](https://developer.apple.com/swift)
+[![CocoaPods Shield](https://img.shields.io/cocoapods/v/FloationgActionSheetController.svg)](https://cocoapods.org/pods/FloationgActionSheetController)
+[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License](http://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://github.com/ra1028/FloatingActionSheetController/blob/master/LICENSE)
 
 FloatingActionSheetController is a cool design ActionSheetController library written in Swift2.  
@@ -22,6 +24,12 @@ FloatingActionSheetController is a cool design ActionSheetController library wri
 # Podfile
 use_frameworks!
 pod "FloatingActionSheetController"
+```
+
+### Carthage
+```ruby
+# Cartfile
+github "ra1028/FloatingActionSheetController"
 ```
 
 ## Usage
