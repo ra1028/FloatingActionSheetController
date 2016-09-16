@@ -25,27 +25,31 @@ public class FloatingActionSheetController: UIViewController {
     public var font = UIFont.boldSystemFontOfSize(14)
     public var textColor = UIColor.whiteColor()
     public var dimmingColor = UIColor(white: 0, alpha: 0.7)
+    public var scaleFromVC = true
     
     public convenience init(animationStyle: AnimationStyle) {
         self.init(nibName: nil, bundle: nil)
         self.animationStyle = animationStyle
     }
     
-    public convenience init(actionGroup: FloatingActionGroup..., animationStyle: AnimationStyle = .SlideUp) {
+    public convenience init(actionGroup: FloatingActionGroup..., animationStyle: AnimationStyle = .SlideUp, scaleParentViewController: Bool = true) {
         self.init(nibName: nil, bundle: nil)
         self.animationStyle = animationStyle
+        self.scaleFromVC = scaleParentViewController
         actionGroup.forEach { addActionGroup($0) }
     }
     
-    public convenience init(actionGroups: [FloatingActionGroup], animationStyle: AnimationStyle = .SlideUp) {
+    public convenience init(actionGroups: [FloatingActionGroup], animationStyle: AnimationStyle = .SlideUp, scaleParentViewController: Bool = true) {
         self.init(nibName: nil, bundle: nil)
         self.animationStyle = animationStyle
+        self.scaleFromVC = scaleParentViewController
         addActionGroups(actionGroups)
     }
     
-    public convenience init(actions: [FloatingAction], animationStyle: AnimationStyle = .SlideUp) {
+    public convenience init(actions: [FloatingAction], animationStyle: AnimationStyle = .SlideUp, scaleParentViewController: Bool = true) {
         self.init(nibName: nil, bundle: nil)
         self.animationStyle = animationStyle
+        self.scaleFromVC = scaleParentViewController
         addActions(actions)
     }
     
@@ -387,12 +391,12 @@ public class FloatingActionSheetController: UIViewController {
 extension FloatingActionSheetController: UIViewControllerTransitioningDelegate {
     
     public func animationControllerForPresentedController(presented: UIViewController, presentingController presenting: UIViewController, sourceController source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return FloatingTransitionAnimator(dimmingView: dimmingView)
+        return FloatingTransitionAnimator(dimmingView: dimmingView, scaleParentViewController: self.scaleFromVC)
     }
     
     public func animationControllerForDismissedController(dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         let delay = NSTimeInterval(actionButtons.count) * 0.03
-        return FloatingTransitionAnimator(dimmingView: dimmingView, delay: delay, forwardTransition: false)
+        return FloatingTransitionAnimator(dimmingView: dimmingView, delay: delay, forwardTransition: false, scaleParentViewController: self.scaleFromVC)
     }
 }
 
@@ -401,12 +405,14 @@ private final class FloatingTransitionAnimator: NSObject, UIViewControllerAnimat
     var forwardTransition = true
     let dimmingView: UIView
     var delay: NSTimeInterval = 0
+    var scaleFromVC = true
     
-    init(dimmingView: UIView, delay: NSTimeInterval = 0, forwardTransition: Bool = true) {
+    init(dimmingView: UIView, delay: NSTimeInterval = 0, forwardTransition: Bool = true, scaleParentViewController: Bool = true) {
         self.dimmingView = dimmingView
         super.init()
         self.delay = delay
         self.forwardTransition = forwardTransition
+        self.scaleFromVC = scaleParentViewController
     }
     
     @objc func transitionDuration(transitionContext: UIViewControllerContextTransitioning?) -> NSTimeInterval {
@@ -426,7 +432,10 @@ private final class FloatingTransitionAnimator: NSObject, UIViewControllerAnimat
                 usingSpringWithDamping: 1, initialSpringVelocity: 0,
                 options: .BeginFromCurrentState,
                 animations: {
-                    fromVC.view.layer.transform = CATransform3DMakeScale(0.85, 0.85, 1)
+                    if self.scaleFromVC {
+                        fromVC.view.layer.transform = CATransform3DMakeScale(0.85, 0.85, 1)
+                    }
+                    
                     self.dimmingView.alpha = 0
                     self.dimmingView.alpha = 1
                 }) { _ in
