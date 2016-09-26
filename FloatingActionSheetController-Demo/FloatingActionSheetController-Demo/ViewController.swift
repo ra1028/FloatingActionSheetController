@@ -206,7 +206,7 @@ class ViewController: UIViewController {
             DataSource(sectionTitle: "Animation", rowDatas: animationRows)
         )
         
-        let customTintRow = RowData(title: "Tint color") { [weak self] in
+        let tintRow = RowData(title: "Tint color") { [weak self] in
             if let sSelf = self {
                 let actionSheet = FloatingActionSheetController(actionGroups: sSelf.exampleActionGroups())
                 actionSheet.itemTintColor = UIColor(red:0.93, green:0.95, blue:0.96, alpha:1)
@@ -214,14 +214,14 @@ class ViewController: UIViewController {
                 actionSheet.present(in: sSelf)
             }
         }
-        let customTextColorRow = RowData(title: "Text color") { [weak self] in
+        let textColorRow = RowData(title: "Text color") { [weak self] in
             if let sSelf = self {
                 let actionSheet = FloatingActionSheetController(actionGroups: sSelf.exampleActionGroups())
                 actionSheet.textColor = UIColor(red: 0.9, green: 0.55, blue: 0.08, alpha: 1)
                 actionSheet.present(in: sSelf)
             }
         }
-        let customFontRow = RowData(title: "Text font") { [weak self] in
+        let fontRow = RowData(title: "Text font") { [weak self] in
             if let sSelf = self {
                 let actionSheet = FloatingActionSheetController(actionGroups: sSelf.exampleActionGroups())
                 actionSheet.font = .systemFont(ofSize: 18)
@@ -252,8 +252,8 @@ class ViewController: UIViewController {
                 let cancelAction = FloatingAction(title: "Cancel") {
                     sSelf.display($0)
                 }
-                cancelAction.customTintColor = UIColor(red:0.93, green:0.95, blue:0.96, alpha:1)
-                cancelAction.customTextColor = UIColor(red:0.87, green:0.42, blue:0.35, alpha:1)
+                cancelAction.tintColor = UIColor(red:0.93, green:0.95, blue:0.96, alpha:1)
+                cancelAction.textColor = UIColor(red:0.87, green:0.42, blue:0.35, alpha:1)
                 FloatingActionSheetController(actionGroup: .init(actions: actions))
                     .add(action: cancelAction, newGroup: true)
                     .present(in: sSelf)
@@ -263,9 +263,9 @@ class ViewController: UIViewController {
             DataSource(
                 sectionTitle: "Custom Appearance",
                 rowDatas: [
-                    customTintRow,
-                    customTextColorRow,
-                    customFontRow,
+                    tintRow,
+                    textColorRow,
+                    fontRow,
                     dimmingColorRow,
                     pushBackScaleRow,
                     individualCustomRow

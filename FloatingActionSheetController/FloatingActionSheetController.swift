@@ -159,13 +159,13 @@ open class FloatingActionSheetController: UIViewController {
             self.action = action
             setTitle(action.title, for: .normal)
             
-            if let color = action.customTintColor {
+            if let color = action.tintColor {
                 backgroundColor = color
             }
-            if let color = action.customTextColor {
+            if let color = action.textColor {
                 setTitleColor(color, for: .normal)
             }
-            if let font = action.customFont {
+            if let font = action.font {
                 titleLabel?.font = font
             }
         }
