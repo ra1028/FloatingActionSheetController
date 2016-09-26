@@ -32,28 +32,28 @@ final class HeaderView: UITableViewHeaderFooterView {
     
     // MARK: Private
     
-    private weak var titleLabel: UILabel!
+    fileprivate weak var titleLabel: UILabel!
     
-    private func configure() {
+    fileprivate func configure() {
         contentView.backgroundColor = UIColor(red:0.11, green:0.12, blue:0.15, alpha:1)
         
         let titleLabel = UILabel()
-        titleLabel.textAlignment = .Center
+        titleLabel.textAlignment = .center
         titleLabel.textColor = UIColor(white: 1, alpha: 0.8)
-        titleLabel.font = UIFont.systemFontOfSize(16)
+        titleLabel.font = .systemFont(ofSize: 16)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(titleLabel)
         self.titleLabel = titleLabel
         
         contentView.addConstraints(
-            NSLayoutConstraint.constraintsWithVisualFormat(
-                "V:|-0-[label]-0-|",
+            NSLayoutConstraint.constraints(
+                withVisualFormat: "V:|-0-[label]-0-|",
                 options: [],
                 metrics: nil,
                 views: ["label": titleLabel]
                 )
-                + NSLayoutConstraint.constraintsWithVisualFormat(
-                    "H:|-0-[label]-0-|",
+                + NSLayoutConstraint.constraints(
+                    withVisualFormat: "H:|-0-[label]-0-|",
                     options: [],
                     metrics: nil,
                     views: ["label": titleLabel]

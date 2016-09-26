@@ -8,48 +8,49 @@
 
 import UIKit
 
-public class FloatingActionSheetController: UIViewController {
+open class FloatingActionSheetController: UIViewController {
     
     // MARK: Public
     
     public enum AnimationStyle {
-        case SlideUp
-        case SlideDown
-        case SlideLeft
-        case SlideRight
-        case Pop
+        case slideUp
+        case slideDown
+        case slideLeft
+        case slideRight
+        case pop
     }
     
-    public var animationStyle = AnimationStyle.SlideUp
-    public var itemTintColor = UIColor(red:0.13, green:0.13, blue:0.17, alpha:1)
-    public var font = UIFont.boldSystemFontOfSize(14)
-    public var textColor = UIColor.whiteColor()
-    public var dimmingColor = UIColor(white: 0, alpha: 0.7)
+    open var animationStyle = AnimationStyle.slideUp
+    open var itemTintColor = UIColor(red:0.13, green:0.13, blue:0.17, alpha:1)
+    open var font = UIFont.boldSystemFont(ofSize: 14)
+    open var textColor = UIColor.white
+    open var dimmingColor = UIColor(white: 0, alpha: 0.7)
+    open var pushBackScale: CGFloat = 0.85
     
     public convenience init(animationStyle: AnimationStyle) {
         self.init(nibName: nil, bundle: nil)
         self.animationStyle = animationStyle
     }
     
-    public convenience init(actionGroup: FloatingActionGroup..., animationStyle: AnimationStyle = .SlideUp) {
+    public convenience init(actionGroup: FloatingActionGroup..., animationStyle: AnimationStyle = .slideUp) {
         self.init(nibName: nil, bundle: nil)
         self.animationStyle = animationStyle
-        actionGroup.forEach { addActionGroup($0) }
+        actionGroup.forEach { add(actionGroup: $0) }
     }
     
-    public convenience init(actionGroups: [FloatingActionGroup], animationStyle: AnimationStyle = .SlideUp) {
+    public convenience init(actionGroups: [FloatingActionGroup], animationStyle: AnimationStyle = .slideUp) {
         self.init(nibName: nil, bundle: nil)
         self.animationStyle = animationStyle
-        addActionGroups(actionGroups)
+        add(actionGroups: actionGroups)
     }
     
-    public convenience init(actions: [FloatingAction], animationStyle: AnimationStyle = .SlideUp) {
+    public convenience init(actions: [FloatingAction], animationStyle: AnimationStyle = .slideUp) {
         self.init(nibName: nil, bundle: nil)
         self.animationStyle = animationStyle
-        addActions(actions)
+        add(actions: actions)
     }
     
-    public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+    public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         configure()
     }
@@ -58,72 +59,78 @@ public class FloatingActionSheetController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    public override func preferredStatusBarStyle() -> UIStatusBarStyle {
-        return .LightContent
+    open override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
     }
     
-    public override func prefersStatusBarHidden() -> Bool {
-        return UIApplication.sharedApplication().statusBarHidden
+    open override var prefersStatusBarHidden: Bool {
+        return UIApplication.shared.isStatusBarHidden
     }
     
-    public override func preferredStatusBarUpdateAnimation() -> UIStatusBarAnimation {
-        return .Fade
+    open override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
+        return .fade
     }
     
-    public override func viewWillAppear(animated: Bool) {
+    open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if !isShowing {
             showActionSheet()
         }
         if originalStatusBarStyle == nil {
-            originalStatusBarStyle = UIApplication.sharedApplication().statusBarStyle
+            originalStatusBarStyle = UIApplication.shared.statusBarStyle
         }
-        UIApplication.sharedApplication().setStatusBarStyle(.LightContent, animated: true)
+        UIApplication.shared.setStatusBarStyle(.lightContent, animated: true)
     }
     
-    public override func viewWillDisappear(animated: Bool) {
+    open override func viewWillDisappear(_ animated: Bool) {
         if let style = originalStatusBarStyle {
-            UIApplication.sharedApplication().setStatusBarStyle(style, animated: true)
+            UIApplication.shared.setStatusBarStyle(style, animated: true)
         }
     }
     
-    public func present(inViewController: UIViewController, completion: (() -> Void)? = nil) -> Self {
-        inViewController.presentViewController(self, animated: true, completion: completion)
+    @discardableResult
+    public func present(in inViewController: UIViewController, completion: (() -> Void)? = nil) -> Self {
+        inViewController.present(self, animated: true, completion: completion)
         return self
     }
     
+    @discardableResult
     public func dismiss() -> Self {
         dismissActionSheet()
         return self
     }
     
-    public func addActionGroup(actionGroup: FloatingActionGroup...) -> Self {
+    @discardableResult
+    public func add(actionGroup: FloatingActionGroup...) -> Self {
         actionGroups += actionGroup
         return self
     }
     
-    public func addActionGroups(actionGroups: [FloatingActionGroup]) -> Self {
+    @discardableResult
+    public func add(actionGroups: [FloatingActionGroup]) -> Self {
         self.actionGroups += actionGroups
         return self
     }
     
-    public func addAction(action: FloatingAction..., newGroup: Bool = false) -> Self {        
-        if let lastGroup = actionGroups.last where !newGroup {
-            action.forEach { lastGroup.addAction($0) }
+    @discardableResult
+    public func add(action: FloatingAction..., newGroup: Bool = false) -> Self {
+        if let lastGroup = actionGroups.last, !newGroup {
+            action.forEach { lastGroup.add(action: $0) }
         } else {
             let actionGroup = FloatingActionGroup()
-            action.forEach { actionGroup.addAction($0) }
-            addActionGroup(actionGroup)
+            action.forEach { actionGroup.add(action: $0) }
+            add(actionGroup: actionGroup)
         }
         return self
     }
     
-    public func addActions(actions: [FloatingAction], newGroup: Bool = false) -> Self {
-        if let lastGroup = actionGroups.last where !newGroup {
-            lastGroup.addActions(actions)
+    @discardableResult
+    public func add(actions: [FloatingAction], newGroup: Bool = false) -> Self {
+        if let lastGroup = actionGroups.last, !newGroup {
+            lastGroup.add(actions: actions)
         } else {
             let actionGroup = FloatingActionGroup(actions: actions)
-            addActionGroup(actionGroup)
+            add(actionGroup: actionGroup)
         }
         return self
     }
@@ -132,13 +139,13 @@ public class FloatingActionSheetController: UIViewController {
     
     private class ActionButton: UIButton {
         
-        private(set) var action: FloatingAction?
+        fileprivate var action: FloatingAction?
         private var defaultBackgroundColor: UIColor?
         
-        override var highlighted: Bool {
+        override private var isHighlighted: Bool {
             didSet {
-                guard oldValue != highlighted else { return }
-                if highlighted {
+                guard oldValue != isHighlighted else { return }
+                if isHighlighted {
                     defaultBackgroundColor = backgroundColor
                     backgroundColor = highlightedColor(defaultBackgroundColor)
                 } else {
@@ -148,21 +155,22 @@ public class FloatingActionSheetController: UIViewController {
             }
         }
         
-        func configure(action: FloatingAction) {
+        func configure(_ action: FloatingAction) {
             self.action = action
-            setTitle(action.title, forState: .Normal)
+            setTitle(action.title, for: .normal)
+            
             if let color = action.customTintColor {
                 backgroundColor = color
             }
             if let color = action.customTextColor {
-                setTitleColor(color, forState: .Normal)
+                setTitleColor(color, for: .normal)
             }
             if let font = action.customFont {
                 titleLabel?.font = font
             }
         }
         
-        private func highlightedColor(originalColor: UIColor?) -> UIColor? {
+        private func highlightedColor(_ originalColor: UIColor?) -> UIColor? {
             guard let originalColor = originalColor else { return nil }
             var hue: CGFloat = 0, saturatioin: CGFloat = 0,
             brightness: CGFloat = 0, alpha: CGFloat = 0
@@ -178,10 +186,10 @@ public class FloatingActionSheetController: UIViewController {
     }
     
     private var actionGroups = [FloatingActionGroup]()
-    private var actionButtons = [ActionButton]()
+    fileprivate var actionButtons = [ActionButton]()
     private var isShowing = false
     private var originalStatusBarStyle: UIStatusBarStyle?
-    private weak var dimmingView: UIControl!
+    fileprivate weak var dimmingView: UIControl!
     
     private func showActionSheet() {
         isShowing = true
@@ -192,37 +200,37 @@ public class FloatingActionSheetController: UIViewController {
         let groupSpacing: CGFloat = 30
         var previousGroupLastButton: ActionButton?
         
-        actionGroups.reverse().forEach {            
+        actionGroups.reversed().forEach {            
             var previousButton: ActionButton?
-            $0.actions.reverse().forEach {
+            $0.actions.reversed().forEach {
                 let button = createSheetButton($0)
                 view.addSubview(button)
-                var constraints = NSLayoutConstraint.constraintsWithVisualFormat(
-                    "H:|-(spacing)-[button]-(spacing)-|",
+                var constraints = NSLayoutConstraint.constraints(
+                    withVisualFormat: "H:|-(spacing)-[button]-(spacing)-|",
                     options: [],
                     metrics: ["spacing": itemSpacing],
                     views: ["button": button]
                 )
                 if let previousButton = previousButton {
                     constraints +=
-                    NSLayoutConstraint.constraintsWithVisualFormat(
-                        "V:[button(height)]-spacing-[previous]",
+                    NSLayoutConstraint.constraints(
+                        withVisualFormat: "V:[button(height)]-spacing-[previous]",
                         options: [],
                         metrics: ["height": itemHeight,"spacing": itemSpacing],
                         views: ["button": button, "previous": previousButton]
                     )
                 } else if let previousGroupLastButton = previousGroupLastButton {
                     constraints +=
-                        NSLayoutConstraint.constraintsWithVisualFormat(
-                            "V:[button(height)]-spacing-[previous]",
+                        NSLayoutConstraint.constraints(
+                            withVisualFormat: "V:[button(height)]-spacing-[previous]",
                             options: [],
                             metrics: ["height": itemHeight, "spacing": groupSpacing],
                             views: ["button": button, "previous": previousGroupLastButton]
                     )
                 } else {
                     constraints +=
-                        NSLayoutConstraint.constraintsWithVisualFormat(
-                            "V:[button(height)]-spacing-|",
+                        NSLayoutConstraint.constraints(
+                            withVisualFormat: "V:[button(height)]-spacing-|",
                             options: [],
                             metrics: ["height": itemHeight,"spacing": itemSpacing],
                             views: ["button": button]
@@ -243,41 +251,41 @@ public class FloatingActionSheetController: UIViewController {
             let topButtonY = topButton.frame.origin.y
             assert(topButtonY > 0, "[FloatingActionSheetController] Too many action items error.")
             switch animationStyle {
-            case .SlideUp:
+            case .slideUp:
                 let bottomPad = view.bounds.height - topButtonY
-                buttons = actionButtons.reverse()
+                buttons = actionButtons.reversed()
                 preTransform = CATransform3DMakeTranslation(0, bottomPad, 0)
                 transform = CATransform3DMakeTranslation(0, -10, 0)
-            case .SlideDown:
-                let topPad = CGRectGetMaxY(actionButtons[0].frame)
+            case .slideDown:
+                let topPad = actionButtons[0].frame.maxY
                 buttons = actionButtons
                 preTransform = CATransform3DMakeTranslation(0, -topPad, 0)
                 transform = CATransform3DMakeTranslation(0, 10, 0)
-            case .SlideLeft:
+            case .slideLeft:
                 let rightPad = view.bounds.width - topButton.frame.origin.x
-                buttons = actionButtons.reverse()
+                buttons = actionButtons.reversed()
                 preTransform = CATransform3DMakeTranslation(rightPad, 0, 0)
                 transform = CATransform3DMakeTranslation(-10, 0, 0)
-            case .SlideRight:
-                let leftPad = CGRectGetMaxX(topButton.frame)
-                buttons = actionButtons.reverse()
+            case .slideRight:
+                let leftPad = topButton.frame.maxX
+                buttons = actionButtons.reversed()
                 preTransform = CATransform3DMakeTranslation(-leftPad, 0, 0)
                 transform = CATransform3DMakeTranslation(10, 0, 0)
-            case .Pop:
-                buttons = actionButtons.reverse()
+            case .pop:
+                buttons = actionButtons.reversed()
                 preTransform = CATransform3DMakeScale(0, 0, 1)
                 transform = CATransform3DMakeScale(1.1, 1.1, 1)
             }
             
-            buttons.enumerate().forEach { index, button in
+            buttons.enumerated().forEach { index, button in
                 button.layer.transform = preTransform
-                UIView.animateWithDuration(0.25, delay: NSTimeInterval(index) * 0.05 + 0.05,
-                    options: .BeginFromCurrentState,
+                UIView.animate(withDuration: 0.25, delay: TimeInterval(index) * 0.05 + 0.05,
+                    options: .beginFromCurrentState,
                     animations: {
                         button.layer.transform = transform
                     }) { _ in
-                        UIView.animateWithDuration(0.2, delay: 0,
-                            options: [.BeginFromCurrentState, .CurveEaseOut],
+                        UIView.animate(withDuration: 0.2, delay: 0,
+                            options: [.beginFromCurrentState, .curveEaseOut],
                             animations: {
                                 button.layer.transform = CATransform3DIdentity
                             }, completion: nil)
@@ -286,38 +294,38 @@ public class FloatingActionSheetController: UIViewController {
         }
     }
     
-    private func dismissActionSheet(completion: (() -> Void)? = nil) {
-        self.dismissViewControllerAnimated(true, completion: completion)
+    private func dismissActionSheet(_ completion: (() -> Void)? = nil) {
+        self.dismiss(animated: true, completion: completion)
         if let topButton = actionButtons.last {
             let buttons: [ActionButton]
             let transform: CATransform3D
-            var completion: (ActionButton -> Void)?
+            var completion: ((ActionButton) -> Void)?
             switch animationStyle {
-            case .SlideUp:
+            case .slideUp:
                 let bottomPad = view.bounds.height - topButton.frame.origin.y
                 buttons = actionButtons
                 transform = CATransform3DMakeTranslation(0, bottomPad, 0)
-            case .SlideDown:
-                let topPad = CGRectGetMaxY(actionButtons[0].frame)
-                buttons = actionButtons.reverse()
+            case .slideDown:
+                let topPad = actionButtons[0].frame.maxY
+                buttons = actionButtons.reversed()
                 transform = CATransform3DMakeTranslation(0, -topPad, 0)
-            case .SlideLeft:
-                let leftPad = CGRectGetMaxX(topButton.frame)
-                buttons = actionButtons.reverse()
+            case .slideLeft:
+                let leftPad = topButton.frame.maxX
+                buttons = actionButtons.reversed()
                 transform = CATransform3DMakeTranslation(-leftPad, 0, 0)
-            case .SlideRight:
+            case .slideRight:
                 let rightPad = view.bounds.width - topButton.frame.origin.x
-                buttons = actionButtons.reverse()
+                buttons = actionButtons.reversed()
                 transform = CATransform3DMakeTranslation(rightPad, 0, 0)
-            case .Pop:
+            case .pop:
                 buttons = actionButtons
                 transform = CATransform3DMakeScale(0.01, 0.01, 1) // 0.01 = Swift bug
                 completion = { $0.layer.transform = CATransform3DMakeScale(0, 0, 1) }
             }
             
-            buttons.enumerate().forEach { index, button in
-                UIView.animateWithDuration(0.2, delay: NSTimeInterval(index) * 0.05 + 0.05,
-                    options: .BeginFromCurrentState,
+            buttons.enumerated().forEach { index, button in
+                UIView.animate(withDuration: 0.2, delay: TimeInterval(index) * 0.05 + 0.05,
+                    options: .beginFromCurrentState,
                     animations: {
                         button.layer.transform = transform
                     }) { _ in
@@ -327,51 +335,52 @@ public class FloatingActionSheetController: UIViewController {
         }
     }
     
-    private func createSheetButton(action: FloatingAction) -> ActionButton {
-        let button = ActionButton(type: .Custom)
+    private func createSheetButton(_ action: FloatingAction) -> ActionButton {
+        let button = ActionButton(type: .custom)
         button.layer.cornerRadius = 4
         button.backgroundColor = itemTintColor
-        button.titleLabel?.textAlignment = .Center
+        button.titleLabel?.textAlignment = .center
         button.titleLabel?.font = font
-        button.setTitleColor(textColor, forState: .Normal)
+        button.setTitleColor(textColor, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configure(action)
-        button.addTarget(self, action: "didSelectItem:", forControlEvents: .TouchUpInside)
+        button.addTarget(self, action: #selector(FloatingActionSheetController.didSelectItem(_:)), for: .touchUpInside)
         return button
     }
     
-    private dynamic func didSelectItem(button: ActionButton) {
+    private dynamic func didSelectItem(_ button: ActionButton) {
         guard let action = button.action else { return }
+        
         if action.handleImmediately {
-            action.handler?(action: action)
+            action.handler?(action)
         }
         dismissActionSheet {
             if !action.handleImmediately {
-                action.handler?(action: action)
+                action.handler?(action)
             }
         }
     }
     
     private func configure() {
-        view.backgroundColor = .clearColor()
-        modalPresentationStyle = .Custom
+        view.backgroundColor = .clear
+        modalPresentationStyle = .custom
         transitioningDelegate = self
         
         let dimmingView = UIControl()
-        dimmingView.addTarget(self, action: "handleTapDimmingView", forControlEvents: .TouchUpInside)
+        dimmingView.addTarget(self, action: #selector(FloatingActionSheetController.handleTapDimmingView), for: .touchUpInside)
         dimmingView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(dimmingView)
         self.dimmingView = dimmingView
         
         view.addConstraints(
-            NSLayoutConstraint.constraintsWithVisualFormat(
-                "V:|-0-[dimmingView]-0-|",
+            NSLayoutConstraint.constraints(
+                withVisualFormat: "V:|-0-[dimmingView]-0-|",
                 options: [],
                 metrics: nil,
                 views: ["dimmingView": dimmingView]
                 )
-                + NSLayoutConstraint.constraintsWithVisualFormat(
-                    "H:|-0-[dimmingView]-0-|",
+                + NSLayoutConstraint.constraints(
+                    withVisualFormat: "H:|-0-[dimmingView]-0-|",
                     options: [],
                     metrics: nil,
                     views: ["dimmingView": dimmingView]
@@ -386,13 +395,13 @@ public class FloatingActionSheetController: UIViewController {
 
 extension FloatingActionSheetController: UIViewControllerTransitioningDelegate {
     
-    public func animationControllerForPresentedController(presented: UIViewController, presentingController presenting: UIViewController, sourceController source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return FloatingTransitionAnimator(dimmingView: dimmingView)
+    public func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        return FloatingTransitionAnimator(dimmingView: dimmingView, pushBackScale: pushBackScale)
     }
     
-    public func animationControllerForDismissedController(dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        let delay = NSTimeInterval(actionButtons.count) * 0.03
-        return FloatingTransitionAnimator(dimmingView: dimmingView, delay: delay, forwardTransition: false)
+    public func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        let delay = TimeInterval(actionButtons.count) * 0.03
+        return FloatingTransitionAnimator(dimmingView: dimmingView, pushBackScale: pushBackScale, delay: delay, forwardTransition: false)
     }
 }
 
@@ -400,42 +409,45 @@ private final class FloatingTransitionAnimator: NSObject, UIViewControllerAnimat
     
     var forwardTransition = true
     let dimmingView: UIView
-    var delay: NSTimeInterval = 0
+    let pushBackScale: CGFloat
+    var delay: TimeInterval = 0
     
-    init(dimmingView: UIView, delay: NSTimeInterval = 0, forwardTransition: Bool = true) {
+    init(dimmingView: UIView, pushBackScale: CGFloat, delay: TimeInterval = 0, forwardTransition: Bool = true) {
         self.dimmingView = dimmingView
+        self.pushBackScale = pushBackScale
         super.init()
         self.delay = delay
         self.forwardTransition = forwardTransition
     }
     
-    @objc func transitionDuration(transitionContext: UIViewControllerContextTransitioning?) -> NSTimeInterval {
+    @objc func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return 0.5
     }
 
-    @objc func animateTransition(transitionContext: UIViewControllerContextTransitioning) {
-        guard let containerView = transitionContext.containerView(),
-            fromVC = transitionContext.viewControllerForKey(UITransitionContextFromViewControllerKey),
-            toVC = transitionContext.viewControllerForKey(UITransitionContextToViewControllerKey)
+    @objc func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+        guard let fromVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from),
+            let toVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to)
             else { return }
-        let duration = transitionDuration(transitionContext)
+        
+        let containerView = transitionContext.containerView
+        let duration = transitionDuration(using: transitionContext)
         
         if forwardTransition {
             containerView.addSubview(toVC.view)
-            UIView.animateWithDuration(duration, delay: 0,
+            UIView.animate(withDuration: duration, delay: 0,
                 usingSpringWithDamping: 1, initialSpringVelocity: 0,
-                options: .BeginFromCurrentState,
+                options: .beginFromCurrentState,
                 animations: {
-                    fromVC.view.layer.transform = CATransform3DMakeScale(0.85, 0.85, 1)
+                    fromVC.view.layer.transform = CATransform3DMakeScale(self.pushBackScale, self.pushBackScale, 1)
                     self.dimmingView.alpha = 0
                     self.dimmingView.alpha = 1
                 }) { _ in
                     transitionContext.completeTransition(true)
             }
         } else {
-            UIView.animateWithDuration(duration, delay: delay,
+            UIView.animate(withDuration: duration, delay: delay,
                 usingSpringWithDamping: 1, initialSpringVelocity: 0,
-                options: .BeginFromCurrentState,
+                options: .beginFromCurrentState,
                 animations: {
                     toVC.view.layer.transform = CATransform3DIdentity
                     self.dimmingView.alpha = 0

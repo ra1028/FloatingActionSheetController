@@ -21,26 +21,26 @@ class ViewController: UIViewController {
     
     // MARK: Private
     
-    private class PaddingLabel: UILabel {
-        private override func drawTextInRect(rect: CGRect) {
+    fileprivate class PaddingLabel: UILabel {
+        fileprivate override func drawText(in rect: CGRect) {
             let insets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15)
-            super.drawTextInRect(UIEdgeInsetsInsetRect(rect, insets))
+            super.drawText(in: UIEdgeInsetsInsetRect(rect, insets))
         }
     }
     
-    private struct RowData {
+    fileprivate struct RowData {
         var title: String?
         var handler: (() -> Void)?
     }
-    private struct DataSource {
+    fileprivate struct DataSource {
         var sectionTitle: String?
         var rowDatas = [RowData]()
     }
     
-    private var dataSources = [DataSource]()
-    private weak var displayLabel: UILabel!
+    fileprivate var dataSources = [DataSource]()
+    fileprivate weak var displayLabel: UILabel!
     
-    private func configure() {
+    fileprivate func configure() {
         title = "Examples"
         view.backgroundColor = UIColor(red:0.14, green:0.16, blue:0.2, alpha:1)
         
@@ -48,32 +48,32 @@ class ViewController: UIViewController {
         displayLabel.backgroundColor = UIColor(red:0.93, green:0.95, blue:0.96, alpha:1)
         displayLabel.text = "Select example from below."
         displayLabel.textColor = UIColor(red:0.48, green:0.52, blue:0.58, alpha:1)
-        displayLabel.font = .boldSystemFontOfSize(14)
+        displayLabel.font = .boldSystemFont(ofSize: 14)
         
-        let tableView = UITableView(frame: .zero, style: .Grouped)
+        let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.tableHeaderView = displayLabel
-        tableView.backgroundColor = .clearColor()
+        tableView.backgroundColor = .clear
         tableView.showsHorizontalScrollIndicator = false
         tableView.showsVerticalScrollIndicator = false
         tableView.delaysContentTouches = false
-        tableView.separatorStyle = .None
+        tableView.separatorStyle = .none
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.registerClass(HeaderView.self, forHeaderFooterViewReuseIdentifier: "HeaderView")
-        tableView.registerNib(UINib(nibName: "TableViewCell", bundle: NSBundle.mainBundle()), forCellReuseIdentifier: "TableViewCell")
+        tableView.register(HeaderView.self, forHeaderFooterViewReuseIdentifier: "HeaderView")
+        tableView.register(UINib(nibName: "TableViewCell", bundle: Bundle.main), forCellReuseIdentifier: "TableViewCell")
         tableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableView)
         self.displayLabel = displayLabel
         
         view.addConstraints(
-            NSLayoutConstraint.constraintsWithVisualFormat(
-                "V:|-0-[tableView]-0-|",
+            NSLayoutConstraint.constraints(
+                withVisualFormat: "V:|-0-[tableView]-0-|",
                 options: [],
                 metrics: nil,
                 views: ["tableView": tableView]
                 )
-                + NSLayoutConstraint.constraintsWithVisualFormat(
-                    "H:|-0-[tableView]-0-|",
+                + NSLayoutConstraint.constraints(
+                    withVisualFormat: "H:|-0-[tableView]-0-|",
                     options: [],
                     metrics: nil,
                     views: ["tableView": tableView]
@@ -81,7 +81,7 @@ class ViewController: UIViewController {
         )
     }
     
-    private func configureDataSources() {
+    fileprivate func configureDataSources() {
         var standardRows = [RowData]()
         standardRows.append(
             RowData(title: "2 : 1") { [weak self] in
@@ -99,7 +99,7 @@ class ViewController: UIViewController {
                         }
                     )
                     FloatingActionSheetController(actionGroup: group1, group2)
-                        .present(sSelf)
+                        .present(in: sSelf)
                 }
             }
         )
@@ -119,7 +119,7 @@ class ViewController: UIViewController {
                         }
                     )
                     FloatingActionSheetController(actionGroup: group1, group2)
-                        .present(sSelf)
+                        .present(in: sSelf)
                 }
             }
         )
@@ -144,7 +144,7 @@ class ViewController: UIViewController {
                         }
                     )
                     FloatingActionSheetController(actionGroup: group1, group2, group3)
-                        .present(sSelf)
+                        .present(in: sSelf)
                 }
             }
         )
@@ -173,7 +173,7 @@ class ViewController: UIViewController {
                         }
                     )
                     FloatingActionSheetController(actionGroup: group1, group2, group3)
-                        .present(sSelf)
+                        .present(in: sSelf)
                 }
             }
         )
@@ -181,19 +181,27 @@ class ViewController: UIViewController {
             DataSource(sectionTitle: "Standard", rowDatas: standardRows)
         )
         
-        let animationRows: [RowData] = [
-            ("SlideUp", .SlideUp),
-            ("SlideDown", .SlideDown),
-            ("SlideLeft", .SlideLeft),
-            ("SlideRight", .SlideRight),
-            ("Pop", .Pop)].map { (title: String, style: FloatingActionSheetController.AnimationStyle) -> RowData in
-                RowData(title: title) { [weak self] in
-                    if let sSelf = self {
-                        FloatingActionSheetController(actionGroups: sSelf.exampleActionGroups(), animationStyle: style)
-                            .present(sSelf)
-                    }
+        typealias Component = (String, FloatingActionSheetController.AnimationStyle)
+        let components: [Component] = [
+            ("SlideUp", .slideUp),
+            ("SlideDown", .slideDown),
+            ("SlideLeft", .slideLeft),
+            ("SlideRight", .slideRight),
+            ("Pop", .pop)
+        ]
+        
+        let animationRows: [RowData] = components.map { title, style in
+            RowData(title: title) { [weak self] in
+                if let sSelf = self {
+                    let vc = FloatingActionSheetController(
+                        actionGroups: sSelf.exampleActionGroups(),
+                        animationStyle: style
+                    )
+                    vc.present(in: sSelf)
                 }
+            }
         }
+        
         dataSources.append(
             DataSource(sectionTitle: "Animation", rowDatas: animationRows)
         )
@@ -203,28 +211,35 @@ class ViewController: UIViewController {
                 let actionSheet = FloatingActionSheetController(actionGroups: sSelf.exampleActionGroups())
                 actionSheet.itemTintColor = UIColor(red:0.93, green:0.95, blue:0.96, alpha:1)
                 actionSheet.textColor = UIColor(red:0.48, green:0.52, blue:0.58, alpha:1)
-                actionSheet.present(sSelf)
+                actionSheet.present(in: sSelf)
             }
         }
         let customTextColorRow = RowData(title: "Text color") { [weak self] in
             if let sSelf = self {
                 let actionSheet = FloatingActionSheetController(actionGroups: sSelf.exampleActionGroups())
                 actionSheet.textColor = UIColor(red: 0.9, green: 0.55, blue: 0.08, alpha: 1)
-                actionSheet.present(sSelf)
+                actionSheet.present(in: sSelf)
             }
         }
         let customFontRow = RowData(title: "Text font") { [weak self] in
             if let sSelf = self {
                 let actionSheet = FloatingActionSheetController(actionGroups: sSelf.exampleActionGroups())
-                actionSheet.font = .systemFontOfSize(18)
-                actionSheet.present(sSelf)
+                actionSheet.font = .systemFont(ofSize: 18)
+                actionSheet.present(in: sSelf)
             }
         }
         let dimmingColorRow = RowData(title: "Dimming color") { [weak self] in
             if let sSelf = self {
                 let actionSheet = FloatingActionSheetController(actionGroups: sSelf.exampleActionGroups())
-                actionSheet.dimmingColor = UIColor.whiteColor().colorWithAlphaComponent(0.7)
-                actionSheet.present(sSelf)
+                actionSheet.dimmingColor = UIColor.white.withAlphaComponent(0.7)
+                actionSheet.present(in: sSelf)
+            }
+        }
+        let pushBackScaleRow = RowData(title: "Push back scale") { [weak self] in
+            if let sSelf = self {
+                let actionSheet = FloatingActionSheetController(actionGroups: sSelf.exampleActionGroups())
+                actionSheet.pushBackScale = 0.7
+                actionSheet.present(in: sSelf)
             }
         }
         let individualCustomRow = RowData(title: "Individual custom") { [weak self] in
@@ -239,25 +254,33 @@ class ViewController: UIViewController {
                 }
                 cancelAction.customTintColor = UIColor(red:0.93, green:0.95, blue:0.96, alpha:1)
                 cancelAction.customTextColor = UIColor(red:0.87, green:0.42, blue:0.35, alpha:1)
-                FloatingActionSheetController(actionGroup: FloatingActionGroup(actions: actions))
-                    .addAction(cancelAction, newGroup: true)
-                    .present(sSelf)
+                FloatingActionSheetController(actionGroup: .init(actions: actions))
+                    .add(action: cancelAction, newGroup: true)
+                    .present(in: sSelf)
             }
         }
         dataSources.append(
-            DataSource(sectionTitle: "Custom Appearance", rowDatas: [
-                customTintRow, customTextColorRow, customFontRow, dimmingColorRow, individualCustomRow
-                ])
+            DataSource(
+                sectionTitle: "Custom Appearance",
+                rowDatas: [
+                    customTintRow,
+                    customTextColorRow,
+                    customFontRow,
+                    dimmingColorRow,
+                    pushBackScaleRow,
+                    individualCustomRow
+                ]
+            )
         )
     }
     
-    private func display(action: FloatingAction) {
+    fileprivate func display(_ action: FloatingAction) {
         if let title = action.title {
             displayLabel.text = "\(title) Selected."
         }
     }
     
-    private func exampleActionGroups() -> [FloatingActionGroup] {
+    fileprivate func exampleActionGroups() -> [FloatingActionGroup] {
         let action1 = FloatingAction(title: "Action1") { [weak self] in
             self?.display($0)
         }
@@ -275,31 +298,31 @@ class ViewController: UIViewController {
 
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        tableView.deselectRowAtIndexPath(indexPath, animated: true)
-        dataSources[indexPath.section].rowDatas[indexPath.row].handler?()
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        dataSources[(indexPath as NSIndexPath).section].rowDatas[(indexPath as NSIndexPath).row].handler?()
     }
     
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int {
         return dataSources.count
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return dataSources[section].rowDatas.count
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("TableViewCell", forIndexPath: indexPath) as! TableViewCell
-        cell.title = dataSources[indexPath.section].rowDatas[indexPath.row].title
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "TableViewCell", for: indexPath) as! TableViewCell
+        cell.title = dataSources[(indexPath as NSIndexPath).section].rowDatas[(indexPath as NSIndexPath).row].title
         return cell
     }
     
-    func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 44
     }
     
-    func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let view = tableView.dequeueReusableHeaderFooterViewWithIdentifier("HeaderView") as! HeaderView
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: "HeaderView") as! HeaderView
         view.title = dataSources[section].sectionTitle
         return view
     }

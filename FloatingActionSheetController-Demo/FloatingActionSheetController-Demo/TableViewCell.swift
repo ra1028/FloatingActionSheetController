@@ -31,5 +31,5 @@ final class TableViewCell: UITableViewCell {
     
     // MARK: Private
     
-    @IBOutlet private weak var titleLabel: UILabel!
+    @IBOutlet fileprivate weak var titleLabel: UILabel!
 }

@@ -15,19 +15,21 @@ public final class FloatingActionGroup {
     public init() {}
     
     public init(action: FloatingAction...) {
-        action.forEach { addAction($0) }
+        action.forEach { add(action: $0) }
     }
     
     public init(actions: [FloatingAction]) {
-        addActions(actions)
+        add(actions: actions)
     }
     
-    public func addAction(action: FloatingAction...) -> FloatingActionGroup {
+    @discardableResult
+    public func add(action: FloatingAction...) -> FloatingActionGroup {
         actions += action
         return self
     }
     
-    public func addActions(actions: [FloatingAction]) -> FloatingActionGroup {
+    @discardableResult
+    public func add(actions: [FloatingAction]) -> FloatingActionGroup {
         self.actions += actions
         return self
     }
