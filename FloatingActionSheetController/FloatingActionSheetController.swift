@@ -8,7 +8,7 @@
 
 import UIKit
 
-open class FloatingActionSheetController: UIViewController {
+open class FloatingActionSheetController: UIViewController, UIViewControllerTransitioningDelegate {
     
     // MARK: Public
     
@@ -186,7 +186,7 @@ open class FloatingActionSheetController: UIViewController {
     }
     
     private var actionGroups = [FloatingActionGroup]()
-    fileprivate var actionButtons = [ActionButton]()
+    private var actionButtons = [ActionButton]()
     private var isShowing = false
     private var originalStatusBarStyle: UIStatusBarStyle?
     fileprivate weak var dimmingView: UIControl!
@@ -354,7 +354,7 @@ open class FloatingActionSheetController: UIViewController {
         return button
     }
     
-    private dynamic func didSelectItem(_ button: ActionButton) {
+    @objc private dynamic func didSelectItem(_ button: ActionButton) {
         guard let action = button.action else { return }
         
         if action.handleImmediately {
@@ -394,21 +394,19 @@ open class FloatingActionSheetController: UIViewController {
         )
     }
     
-    private dynamic func handleTapDimmingView() {
+    @objc private dynamic func handleTapDimmingView() {
         dismissActionSheet()
     }
-}
+  
+  public func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+    return FloatingTransitionAnimator(dimmingView: dimmingView, pushBackScale: pushBackScale)
+  }
+  
+  public func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+    let delay = TimeInterval(actionButtons.count) * 0.03
+    return FloatingTransitionAnimator(dimmingView: dimmingView, pushBackScale: pushBackScale, delay: delay, forwardTransition: false)
+  }
 
-extension FloatingActionSheetController: UIViewControllerTransitioningDelegate {
-    
-    public func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return FloatingTransitionAnimator(dimmingView: dimmingView, pushBackScale: pushBackScale)
-    }
-    
-    public func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        let delay = TimeInterval(actionButtons.count) * 0.03
-        return FloatingTransitionAnimator(dimmingView: dimmingView, pushBackScale: pushBackScale, delay: delay, forwardTransition: false)
-    }
 }
 
 private final class FloatingTransitionAnimator: NSObject, UIViewControllerAnimatedTransitioning {
