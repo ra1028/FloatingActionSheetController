@@ -228,13 +228,19 @@ open class FloatingActionSheetController: UIViewController {
                             views: ["button": button, "previous": previousGroupLastButton]
                     )
                 } else {
+                  if #available(iOS 11.0, *) {
+                    constraints += [button.heightAnchor.constraint(equalToConstant: itemHeight),
+                      button.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -itemSpacing)
+                    ]
+                  } else {
                     constraints +=
-                        NSLayoutConstraint.constraints(
-                            withVisualFormat: "V:[button(height)]-spacing-|",
-                            options: [],
-                            metrics: ["height": itemHeight,"spacing": itemSpacing],
-                            views: ["button": button]
+                      NSLayoutConstraint.constraints(
+                        withVisualFormat: "V:[button(height)]-spacing-|",
+                        options: [],
+                        metrics: ["height": itemHeight,"spacing": itemSpacing],
+                        views: ["button": button]
                     )
+                  }
                 }
                 view.addConstraints(constraints)
                 previousButton = button
