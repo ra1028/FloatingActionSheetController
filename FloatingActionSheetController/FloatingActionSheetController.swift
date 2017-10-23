@@ -137,12 +137,12 @@ open class FloatingActionSheetController: UIViewController {
     
     // MARK: Private
     
-    private class ActionButton: UIButton {
+    fileprivate class ActionButton: UIButton {
         
         fileprivate var action: FloatingAction?
         private var defaultBackgroundColor: UIColor?
         
-        override private var isHighlighted: Bool {
+        override fileprivate var isHighlighted: Bool {
             didSet {
                 guard oldValue != isHighlighted else { return }
                 if isHighlighted {
